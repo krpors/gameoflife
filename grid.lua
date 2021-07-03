@@ -13,6 +13,10 @@ function Grid:new()
 
     self.iterate = false
 
+    self.highlight = {
+        x = 1,
+        y = 1,
+    }
 
     self.grid[4][4] = 1
     self.grid[5][5] = 1
@@ -120,12 +124,15 @@ function Grid:mousemoved(x, y)
 	local y = math.floor(y / self.cellsize) + 1
 
     self.a = string.format("Alive count around (%d, %d) = %d", x, y, self:getAliveCountFor(y, x))
+
+    self.highlight.x = x - 1
+    self.highlight.y = y - 1
 end
 
 function Grid:update(dt)
     self.time = self.time + dt
 
-    if self.iterate then
+    if self.iterate and self.time > 0.2 then
         self:nextIteration()
         self.time = 0
     end
@@ -136,9 +143,9 @@ function Grid:draw()
 	for r = 1, self.height do
 		for c = 1, self.width do
 			if self.grid[r][c] == 0 then
-				love.graphics.setColor(1, 1, 1, 1)
+				love.graphics.setColor(0, 0, 0)
 			else
-				love.graphics.setColor(0, 0, 0, 1)
+				love.graphics.setColor(1, 1, 1)
 			end
 			love.graphics.rectangle('fill', (c - 1) * self.cellsize, (r - 1) * self.cellsize, self.cellsize, self.cellsize)
 
@@ -152,6 +159,9 @@ function Grid:draw()
 			-- love.graphics.line((c - 1) * self.cellsize, 0, (c - 1) * self.cellsize, self.cellsize * self.height)
 		end
 	end
+
+    love.graphics.setColor(1, 0, 0, 0.2)
+    love.graphics.rectangle("fill", self.highlight.x * self.cellsize, self.highlight.y * self.cellsize, self.cellsize, self.cellsize)
 
     love.graphics.setFont(Globals.Font)
 	love.graphics.setColor(0, 0, 0, 1)
