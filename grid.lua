@@ -8,6 +8,8 @@ function Grid:new()
     self.cellsize = 20
     self.grid = self:createEmptyGrid()
 
+    self.color1 = { 1, 1, 1 }
+    self.color2 = { 0, 0, 0 }
 
     self.time = 0
 
@@ -31,6 +33,20 @@ function Grid:new()
     self.grid[11][5] = 1
 
     self.a = ""
+
+	self.lineGrid = {
+	}
+
+	-- horizontal lines:
+	for y = 1, self.height * self.cellsize, self.cellsize do
+		local line = { 0, y, self.width * self.cellsize, y}
+		table.insert(self.lineGrid, line)
+	end
+
+	for x = 1, self.width * self.cellsize, self.cellsize do
+		local line = { x, 0, x, self.height * self.cellsize}
+		table.insert(self.lineGrid, line)
+	end
 end
 
 function Grid:createEmptyGrid()
@@ -132,7 +148,7 @@ end
 function Grid:update(dt)
     self.time = self.time + dt
 
-    if self.iterate and self.time > 0.2 then
+    if self.iterate and self.time > 0.3 then
         self:nextIteration()
         self.time = 0
     end
@@ -143,21 +159,18 @@ function Grid:draw()
 	for r = 1, self.height do
 		for c = 1, self.width do
 			if self.grid[r][c] == 0 then
-				love.graphics.setColor(0, 0, 0)
+				love.graphics.setColor(self.color2)
 			else
-				love.graphics.setColor(1, 1, 1)
+				love.graphics.setColor(self.color1)
 			end
 			love.graphics.rectangle('fill', (c - 1) * self.cellsize, (r - 1) * self.cellsize, self.cellsize, self.cellsize)
 
-			-- horiz
-			-- love.graphics.setLineWidth(1)
-			-- love.graphics.setColor(0, 0, 0, 1)
-			-- love.graphics.line(0, (r - 1) * self.cellsize, self.cellsize * self.width, (r - 1) * self.cellsize)
-            -- love.graphics.line(0, 0, 10, 10) -- FIXME: This bugs?
-
-			-- love.graphics.setColor(0, 0, 0, 1)
-			-- love.graphics.line((c - 1) * self.cellsize, 0, (c - 1) * self.cellsize, self.cellsize * self.height)
 		end
+	end
+
+	love.graphics.setColor(1, 1, 1, 0.2)
+	for i, line in pairs(self.lineGrid) do
+		love.graphics.line(line)
 	end
 
     love.graphics.setColor(1, 0, 0, 0.2)

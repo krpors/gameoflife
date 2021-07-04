@@ -38,6 +38,7 @@ function love.keyreleased(key)
 end
 
 function love.draw()
+--	love.graphics.scale(0.2, 0.2)
 	gol:draw()
 end
 
