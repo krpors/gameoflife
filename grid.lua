@@ -20,18 +20,6 @@ function Grid:new()
         y = 1,
     }
 
-    self.grid[4][4] = 1
-    self.grid[5][5] = 1
-    self.grid[6][3] = 1
-    self.grid[6][4] = 1
-    self.grid[6][5] = 1
-
-    self.grid[9][4] = 1
-    self.grid[10][5] = 1
-    self.grid[11][3] = 1
-    self.grid[11][4] = 1
-    self.grid[11][5] = 1
-
     self.a = ""
 
 	self.lineGrid = {
@@ -148,7 +136,7 @@ end
 function Grid:update(dt)
     self.time = self.time + dt
 
-    if self.iterate and self.time > 0.3 then
+    if self.iterate and self.time > 0.1 then
         self:nextIteration()
         self.time = 0
     end
