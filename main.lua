@@ -1,16 +1,19 @@
 local Grid = require("grid")
+local Camera = require("camera")
 
 Globals = {
 	Font,
 }
 
 local gol = nil
+local cam = nil
 
 function love.load()
 	local glyphs = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-=_+|/\\:;'\"<>,.?"
 	Globals.Font = love.graphics.newImageFont("font-small.png", glyphs, 1)
 
 	gol = Grid()
+	cam = Camera()
 end
 
 function love.mousepressed(xx, yy, button)
@@ -39,9 +42,13 @@ end
 
 function love.draw()
 --	love.graphics.scale(0.2, 0.2)
+	cam:set()
+	-- cam:draw()
 	gol:draw()
+	cam:unset()
 end
 
 function love.update(dt)
+	cam:update(dt)
 	gol:update(dt)
 end

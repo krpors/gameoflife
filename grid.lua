@@ -22,6 +22,18 @@ function Grid:new()
 
     self.a = ""
 
+	self.neighbourColors = {
+		[0] = { 100 / 255,  99 / 255,  80 / 255 },
+		[1] = { 100 / 255,  93 / 255,  62 / 255 },
+		[2] = { 100 / 255,  85 / 255,  46 / 255 },
+		[3] = { 100 / 255,  70 / 255,  30 / 255 },
+		[4] = { 100 / 255,  55 / 255,  23 / 255 },
+		[5] = {  98 / 255,  30 / 255,  16 / 255 },
+		[6] = {  89 / 255,  12 / 255,  11 / 255 },
+		[7] = {  75 / 255,  10 / 255,  14 / 255 },
+		[8] = {  50 / 255,   6 / 255,  15 / 255 },
+	}
+
 	self.lineGrid = {
 	}
 
@@ -149,7 +161,9 @@ function Grid:draw()
 			if self.grid[r][c] == 0 then
 				love.graphics.setColor(self.color2)
 			else
-				love.graphics.setColor(self.color1)
+				local alc = self:getAliveCountFor(r, c)
+				local color = self.neighbourColors[alc]
+				love.graphics.setColor(color)
 			end
 			love.graphics.rectangle('fill', (c - 1) * self.cellsize, (r - 1) * self.cellsize, self.cellsize, self.cellsize)
 
