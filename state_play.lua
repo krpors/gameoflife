@@ -88,7 +88,8 @@ function StatePlay:new()
 		end,
 		["up"] = function() self.grid:adjustCellSize(1) end,
 		["down"] = function() self.grid:adjustCellSize(-1) end,
-		["d"] = function() self.grid:clear() end
+		["d"] = function() self.grid:clear() end,
+		["b"] = function() self.grid.wrap = not self.grid.wrap end
 	}
 
 	self.debugStrings = {
@@ -120,6 +121,7 @@ function StatePlay:update(dt)
 		string.format("Period: %1.2f", self.grid.period),
 		string.format("Stencil: %d (%s)", self.stencilIndex, self.stencils[self.stencilIndex].name),
 		string.format("Generation: %d", self.grid.generation),
+		string.format("Wrapping: %s", self.grid.wrap),
 	}
 end
 
