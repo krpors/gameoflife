@@ -6,13 +6,16 @@ local Grid = Object:extend()
 function Grid:new()
     self.width = 100
     self.height = 100
-    self.cellsize = 25
+	self.cellsize = 25
+	self.generation = 0
     self.grid = self:createEmptyGrid()
+	self.wrap = true
 
-    self.color1 = { 1, 1, 1 }
-    self.color2 = { 0, 0, 0 }
+    self.color1 = { 1, 1, 1, 1 }
+    self.color2 = { 0, 0, 0, 1 }
 
     self.time = 0
+	self.period = 0.5
 
     self.iterate = false
 
@@ -29,12 +32,7 @@ function Grid:new()
     self.a = ""
 
 	self.stencil = {
-		{ 1, 0, 1, 1, 1 },
-		{ 1, 0, 1, 1, 1 },
-		{ 1, 0, 1, 1, 1 },
-		{ 1, 0, 1, 1, 1 },
-		{ 1, 0, 1, 1, 1 },
-		{ 1, 0, 1, 1, 1 },
+		{ 1 },
 	}
 
 	self.neighbourColors = {
@@ -49,6 +47,10 @@ function Grid:new()
 		[8] = {  50 / 255,   6 / 255,  15 / 255 },
 	}
 
+	self:initializeGrid()
+end
+
+function Grid:initializeGrid()
 	self.lineGrid = {}
 
 	-- horizontal lines:
@@ -61,6 +63,16 @@ function Grid:new()
 		local line = { x, 0, x, self.height * self.cellsize}
 		table.insert(self.lineGrid, line)
 	end
+end
+
+function Grid:adjustCellSize(amount)
+	self.cellsize = self.cellsize + amount
+	self:initializeGrid()
+end
+
+function Grid:clear()
+	self.grid = self:createEmptyGrid()
+	self.generation = 0
 end
 
 function Grid:createEmptyGrid()
@@ -82,16 +94,17 @@ function Grid:cellValueAt(r, c)
 	local newc = c
 
 	-- wrap around boundaries:
-	if r < 1 then newr = self.height end
-	if c < 1 then newc = self.width  end
-	if r > self.height then newr = 1 end
-	if c > self.width then newc = 1  end
+	if self.wrap then
+		if r < 1 then newr = self.height end
+		if c < 1 then newc = self.width  end
+		if r > self.height then newr = 1 end
+		if c > self.width then newc = 1  end
+	else
+		if r < 1  or c < 1 or r > self.height or c > self.width then
+			return 0
+		end
+	end
 
-	-- if r < 1  or c < 1 or r > self.height or c > self.width then
-	-- 	return 0
-	-- end
-
-	-- return self.grid[r][c]
 	return self.grid[newr][newc]
 end
 
@@ -186,8 +199,9 @@ end
 function Grid:update(dt)
     self.time = self.time + dt
 
-    if self.iterate and self.time > 0.0 then
+    if self.iterate and self.time > self.period then
         self:nextIteration()
+		self.generation = self.generation + 1
         self.time = 0
     end
 end
@@ -213,11 +227,8 @@ function Grid:draw()
 		love.graphics.line(line)
 	end
 
-    -- love.graphics.setColor(1, 0, 0, 0.2)
-    -- love.graphics.rectangle("fill", self.highlight.x * self.cellsize, self.highlight.y * self.cellsize, self.cellsize, self.cellsize)
-
 	-- draw stencil
-	love.graphics.setColor(1, 0, 0, 0.2)
+	love.graphics.setColor(0, 1, 0, 0.5)
 	for r, row in ipairs(self.stencil) do
 		for c, col in ipairs(row) do
 			if self.stencil[r][c] == 1 then
@@ -226,14 +237,7 @@ function Grid:draw()
 					(r + self.mouse.y - 2) * self.cellsize, self.cellsize, self.cellsize)
 			end
 		end
-		-- love.graphics.rectangle("fill", self.highlight.x * self.cellsize, self.highlight.y * self.cellsize, self.cellsize, self.cellsize)
 	end
-
-    love.graphics.setFont(Globals.Font)
-	love.graphics.setColor(0, 0, 0, 1)
-	love.graphics.print(self.a, 10, 10)
-    love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.print(self.a, 11, 11)
 end
 
 return Grid
