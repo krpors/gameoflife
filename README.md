@@ -14,4 +14,8 @@ The 'game' includes:
 1. (Toggle) wrapping around the boundary of the map
 1. Predefined 'stencils'
 
+Screencap:
+
+![Derp](https://i.imgur.com/TyGWYQv.mp4)
+
 More to come probably.
