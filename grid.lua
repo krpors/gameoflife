@@ -1,11 +1,12 @@
 local Object = require("classic")
+local Lume = require("lume")
 
 local Grid = Object:extend()
 
 function Grid:new()
     self.width = 100
     self.height = 100
-    self.cellsize = 20
+    self.cellsize = 25
     self.grid = self:createEmptyGrid()
 
     self.color1 = { 1, 1, 1 }
@@ -15,12 +16,26 @@ function Grid:new()
 
     self.iterate = false
 
+	self.mouse = {
+		x = 1,
+		y = 1,
+	}
+
     self.highlight = {
         x = 1,
         y = 1,
     }
 
     self.a = ""
+
+	self.stencil = {
+		{ 1, 0, 1, 1, 1 },
+		{ 1, 0, 1, 1, 1 },
+		{ 1, 0, 1, 1, 1 },
+		{ 1, 0, 1, 1, 1 },
+		{ 1, 0, 1, 1, 1 },
+		{ 1, 0, 1, 1, 1 },
+	}
 
 	self.neighbourColors = {
 		[0] = { 100 / 255,  99 / 255,  80 / 255 },
@@ -34,8 +49,7 @@ function Grid:new()
 		[8] = {  50 / 255,   6 / 255,  15 / 255 },
 	}
 
-	self.lineGrid = {
-	}
+	self.lineGrid = {}
 
 	-- horizontal lines:
 	for y = 1, self.height * self.cellsize, self.cellsize do
@@ -64,11 +78,21 @@ function Grid:createEmptyGrid()
 end
 
 function Grid:cellValueAt(r, c)
-	if r < 1  or c < 1 or r > self.height or c > self.width then
-		return 0
-	end
+	local newr = r
+	local newc = c
 
-	return self.grid[r][c]
+	-- wrap around boundaries:
+	if r < 1 then newr = self.height end
+	if c < 1 then newc = self.width  end
+	if r > self.height then newr = 1 end
+	if c > self.width then newc = 1  end
+
+	-- if r < 1  or c < 1 or r > self.height or c > self.width then
+	-- 	return 0
+	-- end
+
+	-- return self.grid[r][c]
+	return self.grid[newr][newc]
 end
 
 function Grid:getAliveCountFor(r, c)
@@ -99,9 +123,10 @@ function Grid:nextIteration()
 
 			if self.grid[r][c] == 1 then
 				if alive == 2 or alive == 3 then
+					-- keep livin'
 					copy[r][c] = 1
 				elseif alive >= 4 then
-					-- overpopulation
+					-- overpopulation, so die
 					copy[r][c] = 0
 				end
 			else
@@ -121,23 +146,36 @@ function Grid:nextIteration()
 	end
 end
 
+function Grid:placeStencil(y, x)
+	-- Use a predefined 'stencil' as a template:
+	for r, row in ipairs(self.stencil) do
+		for c, _col in ipairs(row) do
+			-- TODO: check within bounds of width/height
+			self.grid[r + y - 1][c + x - 1] = self.stencil[r][c]
+		end
+	end
+end
+
 function Grid:mousepressed(x, y, button)
     local row = math.floor(y / self.cellsize) + 1
     local col = math.floor(x / self.cellsize) + 1
 
-    local val = self.grid[row][col]
-    if val == 0 then
-        val = 1
-    else
-        val = 0
-    end
+	row = Lume.clamp(row, 1, self.height)
+	col = Lume.clamp(col, 1, self.width)
 
-    self.grid[row][col] = val
+	if button == 1 then
+		self:placeStencil(row, col)
+	else
+		self.grid[row][col] = 0
+	end
 end
 
 function Grid:mousemoved(x, y)
 	local x = math.floor(x / self.cellsize) + 1
 	local y = math.floor(y / self.cellsize) + 1
+
+	self.mouse.x = x
+	self.mouse.y = y
 
     self.a = string.format("Alive count around (%d, %d) = %d", x, y, self:getAliveCountFor(y, x))
 
@@ -148,7 +186,7 @@ end
 function Grid:update(dt)
     self.time = self.time + dt
 
-    if self.iterate and self.time > 0.1 then
+    if self.iterate and self.time > 0.0 then
         self:nextIteration()
         self.time = 0
     end
@@ -175,8 +213,21 @@ function Grid:draw()
 		love.graphics.line(line)
 	end
 
-    love.graphics.setColor(1, 0, 0, 0.2)
-    love.graphics.rectangle("fill", self.highlight.x * self.cellsize, self.highlight.y * self.cellsize, self.cellsize, self.cellsize)
+    -- love.graphics.setColor(1, 0, 0, 0.2)
+    -- love.graphics.rectangle("fill", self.highlight.x * self.cellsize, self.highlight.y * self.cellsize, self.cellsize, self.cellsize)
+
+	-- draw stencil
+	love.graphics.setColor(1, 0, 0, 0.2)
+	for r, row in ipairs(self.stencil) do
+		for c, col in ipairs(row) do
+			if self.stencil[r][c] == 1 then
+				love.graphics.rectangle("fill",
+					(c + self.mouse.x - 2) * self.cellsize,
+					(r + self.mouse.y - 2) * self.cellsize, self.cellsize, self.cellsize)
+			end
+		end
+		-- love.graphics.rectangle("fill", self.highlight.x * self.cellsize, self.highlight.y * self.cellsize, self.cellsize, self.cellsize)
+	end
 
     love.graphics.setFont(Globals.Font)
 	love.graphics.setColor(0, 0, 0, 1)
