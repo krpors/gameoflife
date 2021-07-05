@@ -16,6 +16,6 @@ The 'game' includes:
 
 Screencap:
 
-![Derp](https://i.imgur.com/TyGWYQv.mp4)
+![Imgur](https://imgur.com/7iMpVdo.gif)
 
 More to come probably.
