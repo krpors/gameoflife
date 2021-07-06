@@ -1,3 +1,4 @@
+local Audio = require("audio")
 local Object = require("classic")
 local Lume = require("lume")
 
@@ -133,19 +134,28 @@ end
 function Grid:nextIteration()
 	local copy = self:createEmptyGrid()
 
+	local countAliveCells = 0
+	local countDeadCells = 0
+	local countDeaths = 0
+
 	for r = 1, self.height do
 		for c = 1, self.width do
 			local alive = self:getAliveCountFor(r, c)
 
 			if self.grid[r][c] == 1 then
+				countAliveCells = countAliveCells + 1
+
 				if alive == 2 or alive == 3 then
 					-- keep livin'
 					copy[r][c] = 1
 				elseif alive >= 4 then
 					-- overpopulation, so die
 					copy[r][c] = 0
+					countDeaths = countDeaths + 1
 				end
 			else
+				countDeadCells = countDeadCells + 1
+
 				-- dead cell, see if we can go alive
 				if alive == 3 then
 					-- alive!
@@ -154,6 +164,11 @@ function Grid:nextIteration()
 			end
 		end
 	end
+
+	local pitch = countAliveCells / countDeadCells + 0.6
+	print(pitch)
+	Audio:play("blip", pitch)
+
 
 	for r = 1, self.height do
 		for c = 1, self.width do
@@ -212,6 +227,16 @@ function Grid:update(dt)
 		self.generation = self.generation + 1
         self.time = 0
     end
+end
+
+function Grid:print()
+	for r = 1, self.height do
+		io.write(string.format("{"))
+		for c = 1, self.width do
+			io.write(string.format("%d, ", self.grid[r][c]))
+		end
+		io.write(string.format("},\n"))
+	end
 end
 
 function Grid:draw()

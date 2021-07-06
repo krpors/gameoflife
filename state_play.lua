@@ -58,6 +58,21 @@ local stencilAcorn = {
 	}
 }
 
+local stencilGliderGun = {
+	name = "Glider Gun",
+	grid = {
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	},
+}
+
 
 function StatePlay:new()
 	self.grid = Grid()
@@ -70,6 +85,7 @@ function StatePlay:new()
 		stencilRPentomino,
 		stencilDiehard,
 		stencilAcorn,
+		stencilGliderGun,
 	}
 
 	self.clickOrigin = { x = 1, y = 1}
@@ -94,7 +110,8 @@ function StatePlay:new()
 		["up"] = function() self.grid:adjustCellSize(1) end,
 		["down"] = function() self.grid:adjustCellSize(-1) end,
 		["d"] = function() self.grid:clear() end,
-		["b"] = function() self.grid.wrap = not self.grid.wrap end
+		["b"] = function() self.grid.wrap = not self.grid.wrap end,
+		["p"] = function() self.grid:print() end
 	}
 
 	self.debugStrings = {
@@ -125,7 +142,6 @@ function StatePlay:mousemoved(x, y)
 	self.grid:mousemoved(x, y)
 
 	if self.pressed then
-		print(self.clickOrigin.x, self.clickOrigin.y)
 		local diffx = self.clickOrigin.x - x
 		local diffy = self.clickOrigin.y - y
 		self.translation.x = (self.translationTemp.x - diffx)
