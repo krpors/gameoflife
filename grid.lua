@@ -173,8 +173,8 @@ function Grid:placeStencil(y, x)
 end
 
 function Grid:translateMousePosition(x, y)
-	local row = math.floor((y + self.translation.y) / self.cellsize / self.scale) + 1
-	local col = math.floor((x + self.translation.x) / self.cellsize / self.scale) + 1
+	local row = math.floor((y - self.translation.y * self.scale) / self.cellsize / self.scale) + 1
+	local col = math.floor((x - self.translation.x * self.scale) / self.cellsize / self.scale) + 1
 
 	return col, row
 end

@@ -115,6 +115,9 @@ function StatePlay:mousereleased(x, y, button)
 		self.pressed = false
 		self.translationTemp.x = self.translation.x
 		self.translationTemp.y = self.translation.y
+
+		self.grid.translation.x = self.translation.x
+		self.grid.translation.y = self.translation.y
 	end
 end
 
