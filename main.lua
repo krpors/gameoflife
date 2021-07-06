@@ -7,6 +7,7 @@ Globals = {
 local state = StatePlay()
 
 function love.load()
+	love.graphics.setDefaultFilter("nearest", "nearest")
 	local glyphs = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-=_+|/\\:;'\"<>,.?"
 	Globals.Font = love.graphics.newImageFont("font-small.png", glyphs, 1)
 end
@@ -15,9 +16,18 @@ function love.mousepressed(x, y, button)
 	state:mousepressed(x, y, button)
 end
 
+function love.mousereleased(x, y, button)
+	state:mousereleased(x, y, button)
+end
+
 function love.mousemoved(x, y)
 	state:mousemoved(x, y)
 end
+
+function love.wheelmoved(x, y)
+	state:wheelmoved(x, y)
+end
+
 
 function love.keypressed(key)
 	if key == "escape" then

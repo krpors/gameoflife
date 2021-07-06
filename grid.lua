@@ -11,6 +11,9 @@ function Grid:new()
     self.grid = self:createEmptyGrid()
 	self.wrap = true
 
+	self.scale = 1
+	self.translation = { x = 0, y = 0}
+
     self.color1 = { 1, 1, 1, 1 }
     self.color2 = { 0, 0, 0, 1 }
 
@@ -169,12 +172,18 @@ function Grid:placeStencil(y, x)
 	end
 end
 
-function Grid:mousepressed(x, y, button)
-    local row = math.floor(y / self.cellsize) + 1
-    local col = math.floor(x / self.cellsize) + 1
+function Grid:translateMousePosition(x, y)
+	local row = math.floor((y + self.translation.y) / self.cellsize / self.scale) + 1
+	local col = math.floor((x + self.translation.x) / self.cellsize / self.scale) + 1
 
-	row = Lume.clamp(row, 1, self.height)
-	col = Lume.clamp(col, 1, self.width)
+	return col, row
+end
+
+function Grid:mousepressed(x, y, button)
+	local col, row = self:translateMousePosition(x, y)
+
+	row = Lume.clamp(self.mouse.y, 1, self.height)
+	col = Lume.clamp(self.mouse.x, 1, self.width)
 
 	if button == 1 then
 		self:placeStencil(row, col)
@@ -184,8 +193,7 @@ function Grid:mousepressed(x, y, button)
 end
 
 function Grid:mousemoved(x, y)
-	local x = math.floor(x / self.cellsize) + 1
-	local y = math.floor(y / self.cellsize) + 1
+	local x, y = self:translateMousePosition(x, y)
 
 	self.mouse.x = x
 	self.mouse.y = y

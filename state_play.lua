@@ -72,6 +72,11 @@ function StatePlay:new()
 		stencilAcorn,
 	}
 
+	self.clickOrigin = { x = 1, y = 1}
+	self.scale = 1
+	self.translationTemp = {x = 0, y = 0}
+	self.translation = { x = 0, y = 0}
+
 	self.keymapping = {
 		["["] = function() self.grid.period = self.grid.period - 0.05 end,
 		["]"] = function() self.grid.period = self.grid.period + 0.05 end,
@@ -97,12 +102,44 @@ function StatePlay:new()
 end
 
 function StatePlay:mousepressed(x, y, button)
+	if button == 3 then
+		self.pressed = true
+		self.clickOrigin.x = x
+		self.clickOrigin.y = y
+	end
 	self.grid:mousepressed(x, y, button)
+end
+
+function StatePlay:mousereleased(x, y, button)
+	if button == 3 then
+		self.pressed = false
+		self.translationTemp.x = self.translation.x
+		self.translationTemp.y = self.translation.y
+	end
 end
 
 function StatePlay:mousemoved(x, y)
 	self.grid:mousemoved(x, y)
+
+	if self.pressed then
+		print(self.clickOrigin.x, self.clickOrigin.y)
+		local diffx = self.clickOrigin.x - x
+		local diffy = self.clickOrigin.y - y
+		self.translation.x = (self.translationTemp.x - diffx)
+		self.translation.y = (self.translationTemp.y - diffy)
+	end
 end
+
+function StatePlay:wheelmoved(x, y)
+    if y > 0 then
+        self.scale = self.scale + 0.1
+    elseif y < 0 then
+        self.scale = self.scale - 0.1
+    end
+
+	self.grid.scale = self.scale
+end
+
 
 function StatePlay:keypressed(key)
 	if self.keymapping[key] then
@@ -126,13 +163,18 @@ function StatePlay:update(dt)
 end
 
 function StatePlay:draw()
+	love.graphics.push()
+	love.graphics.scale(self.scale, self.scale)
+	love.graphics.translate(self.translation.x, self.translation.y)
 	self.grid:draw()
+	love.graphics.pop()
 
 	love.graphics.setFont(Globals.Font)
 	love.graphics.setColor(1, 1, 1, 1)
 	for i, str in ipairs(self.debugStrings) do
 		love.graphics.print(str, 5, 12 * (i - 1) + 5)
 	end
+
 end
 
 
