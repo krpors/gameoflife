@@ -40,15 +40,15 @@ function Grid:new()
 	}
 
 	self.neighbourColors = {
-		[0] = { 100 / 255,  99 / 255,  80 / 255 },
-		[1] = { 100 / 255,  93 / 255,  62 / 255 },
-		[2] = { 100 / 255,  85 / 255,  46 / 255 },
-		[3] = { 100 / 255,  70 / 255,  30 / 255 },
-		[4] = { 100 / 255,  55 / 255,  23 / 255 },
-		[5] = {  98 / 255,  30 / 255,  16 / 255 },
-		[6] = {  89 / 255,  12 / 255,  11 / 255 },
-		[7] = {  75 / 255,  10 / 255,  14 / 255 },
-		[8] = {  50 / 255,   6 / 255,  15 / 255 },
+		[0] = { 100 / 255,  99 / 255,  80 / 255, 1 },
+		[1] = { 100 / 255,  93 / 255,  62 / 255, 1 },
+		[2] = { 100 / 255,  85 / 255,  46 / 255, 1 },
+		[3] = { 100 / 255,  70 / 255,  30 / 255, 1 },
+		[4] = { 100 / 255,  55 / 255,  23 / 255, 1 },
+		[5] = {  98 / 255,  30 / 255,  16 / 255, 1 },
+		[6] = {  89 / 255,  12 / 255,  11 / 255, 1 },
+		[7] = {  75 / 255,  10 / 255,  14 / 255, 1 },
+		[8] = {  50 / 255,   6 / 255,  15 / 255, 1 },
 	}
 
 	self:initializeGrid()
@@ -57,13 +57,14 @@ end
 function Grid:initializeGrid()
 	self.lineGrid = {}
 
-	-- horizontal lines:
-	for y = 1, self.height * self.cellsize, self.cellsize do
+	-- Horizontal lines. Note, we do + 1 to 'close' the grid at the bottom
+	for y = 1, (self.height + 1) * self.cellsize, self.cellsize do
 		local line = { 0, y, self.width * self.cellsize, y}
 		table.insert(self.lineGrid, line)
 	end
 
-	for x = 1, self.width * self.cellsize, self.cellsize do
+	-- Vertical lines. Note: we doe +1 to 'close' the grid at the right.
+	for x = 1, (self.width + 1) * self.cellsize, self.cellsize do
 		local line = { x, 0, x, self.height * self.cellsize}
 		table.insert(self.lineGrid, line)
 	end
@@ -134,28 +135,19 @@ end
 function Grid:nextIteration()
 	local copy = self:createEmptyGrid()
 
-	local countAliveCells = 0
-	local countDeadCells = 0
-	local countDeaths = 0
-
 	for r = 1, self.height do
 		for c = 1, self.width do
 			local alive = self:getAliveCountFor(r, c)
 
 			if self.grid[r][c] == 1 then
-				countAliveCells = countAliveCells + 1
-
 				if alive == 2 or alive == 3 then
 					-- keep livin'
 					copy[r][c] = 1
 				elseif alive >= 4 then
 					-- overpopulation, so die
 					copy[r][c] = 0
-					countDeaths = countDeaths + 1
 				end
 			else
-				countDeadCells = countDeadCells + 1
-
 				-- dead cell, see if we can go alive
 				if alive == 3 then
 					-- alive!
@@ -165,10 +157,7 @@ function Grid:nextIteration()
 		end
 	end
 
-	local pitch = countAliveCells / countDeadCells + 0.6
-	print(pitch)
-	Audio:play("blip", pitch)
-
+	Audio:play("blip", math.max(1 / self.period, 0.1))
 
 	for r = 1, self.height do
 		for c = 1, self.width do
@@ -241,23 +230,23 @@ end
 
 function Grid:draw()
 	love.graphics.clear()
+
+	love.graphics.setColor(0.5, 0.5, 0.5, 0.2)
+	love.graphics.setLineWidth(1)
+	for i, line in pairs(self.lineGrid) do
+		love.graphics.line(line)
+	end
+
+	love.graphics.setLineWidth(5)
 	for r = 1, self.height do
 		for c = 1, self.width do
-			if self.grid[r][c] == 0 then
-				love.graphics.setColor(self.color2)
-			else
+			if self.grid[r][c] == 1 then
 				local alc = self:getAliveCountFor(r, c)
 				local color = self.neighbourColors[alc]
 				love.graphics.setColor(color)
+				love.graphics.rectangle("fill", (c - 1) * self.cellsize, (r - 1) * self.cellsize, self.cellsize + 1, self.cellsize + 1)
 			end
-			love.graphics.rectangle('fill', (c - 1) * self.cellsize, (r - 1) * self.cellsize, self.cellsize, self.cellsize)
-
 		end
-	end
-
-	love.graphics.setColor(1, 1, 1, 0.2)
-	for i, line in pairs(self.lineGrid) do
-		love.graphics.line(line)
 	end
 
 	-- draw stencil

@@ -94,7 +94,7 @@ function StatePlay:new()
 	self.translation = { x = 0, y = 0}
 
 	self.keymapping = {
-		["["] = function() self.grid.period = self.grid.period - 0.05 end,
+		["["] = function() self.grid.period = math.max(0.05, self.grid.period - 0.05) end,
 		["]"] = function() self.grid.period = self.grid.period + 0.05 end,
 		["space"] = function() self.grid:setIterating(not self.grid.iterate) end,
 		["."] = function()
@@ -120,7 +120,7 @@ end
 
 function StatePlay:mousepressed(x, y, button)
 	if button == 3 then
-		self.pressed = true
+		self.draggingMouse = true
 		self.clickOrigin.x = x
 		self.clickOrigin.y = y
 	end
@@ -129,7 +129,7 @@ end
 
 function StatePlay:mousereleased(x, y, button)
 	if button == 3 then
-		self.pressed = false
+		self.draggingMouse = false
 		self.translationTemp.x = self.translation.x
 		self.translationTemp.y = self.translation.y
 
@@ -141,11 +141,12 @@ end
 function StatePlay:mousemoved(x, y)
 	self.grid:mousemoved(x, y)
 
-	if self.pressed then
+	if self.draggingMouse then
 		local diffx = self.clickOrigin.x - x
 		local diffy = self.clickOrigin.y - y
-		self.translation.x = (self.translationTemp.x - diffx)
-		self.translation.y = (self.translationTemp.y - diffy)
+		-- divide by scale to improve dragging speed
+		self.translation.x = (self.translationTemp.x - diffx / self.scale)
+		self.translation.y = (self.translationTemp.y - diffy / self.scale)
 	end
 end
 
