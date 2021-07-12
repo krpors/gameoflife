@@ -3,7 +3,6 @@ local Audio = require("audio")
 
 Globals = {
 	Font,
-	Sound,
 }
 
 local state = StatePlay()
@@ -13,9 +12,7 @@ function love.load()
 	local glyphs = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-=_+|/\\:;'\"<>,.?"
 	Globals.Font = love.graphics.newImageFont("font-small.png", glyphs, 1)
 
-	Globals.Sound = love.audio.newSource("Blip_select 12.wav", "static")
-
-	Audio:loadStatic("blip", "Blip_select 12.wav")
+	Audio:loadStatic("blip", "574.mp3")
 end
 
 function love.mousepressed(x, y, button)
